@@ -1,55 +1,89 @@
-# Application Mobile Lorcana
+# Lorcana Mobile Expo
 
-## Structure du Projet
+## 🔄 Introduction
+Lorcana Mobile Expo est une application mobile construite avec **React Native** et **Expo**, utilisant **Expo Router** pour la navigation et **Context API** pour la gestion de l'état global. Elle permet aux utilisateurs de gérer leur collection de cartes Lorcana, suivre leurs chapitres, et créer une wishlist.
 
-Ce projet est structuré comme suit :
+## 📁 Structure du projet
+Le projet suit une architecture modulaire avec Expo Router pour organiser les pages sous le dossier **app/**.
 
-- **src/** : Répertoire principal pour le code de l'application.
-  - **components/** : Contient les composants réutilisables pour l'application.
-  - **screens/** : Contient les différentes écrans de l'application.
-  - **context/** : Contient l'API Context pour la gestion de l'état global.
-  - **api/** : Contient les appels API et les configurations.
-  - **assets/** : Contient les images et autres fichiers statiques.
+```
+lorcana-app/
+│── app/                   # Dossier principal pour Expo Router
+│   │── (tabs)/            # Groupe d'onglets pour la navigation principale
+│   │   │── collection.jsx  # Page Collection
+│   │   │── wishlist.jsx    # Page Wishlist
+│   │── index.jsx           # Page d'accueil (anciennement Welcome)
+│   │── _layout.jsx         # Layout principal
+│   │── login.jsx           # Page de connexion
+│   │── register.jsx        # Page d'inscription
+│── context/                # Gestion de l'état global
+│   │── AuthContext.js      # Contexte d'authentification
+│   │── CollectionContext.js# Contexte de collection de cartes
+│   │── WishlistContext.js  # Contexte de wishlist
+│── components/             # Composants réutilisables
+│── assets/                 # Images et ressources statiques
+│── package.json            # Dépendances et scripts
+│── app.json                # Configuration Expo
+```
 
-## Description des Répertoires
+## 🗂 Fonctionnalités principales
+- **Authentification** : Inscription, connexion, et gestion des sessions.
+- **Collection de cartes** : Affichage des cartes possédées et ajout de nouvelles cartes.
+- **Wishlist** : Gestion des cartes souhaitées.
+- **Chapitres** : Organisation et suivi des chapitres Lorcana.
+- **Navigation avec Expo Router** : Organisation des pages et navigation fluide.
 
-- **components/** : Ce répertoire contiendra tous les composants réutilisables qui peuvent être utilisés à travers différents écrans.
-- **screens/** : Ce répertoire contiendra les divers écrans de l'application, tels que l'écran de connexion, d'inscription et de gestion des cartes.
-- **context/** : Ce répertoire gérera l'état global de l'application en utilisant l'API Context.
-- **api/** : Ce répertoire gérera tous les appels API et les configurations pour interagir avec le backend.
-- **assets/** : Ce répertoire stockera les images et autres fichiers statiques utilisés dans l'application.
+## 🌐 Installation et exécution
+### 1. Cloner le projet
+```sh
+git clone https://github.com/ton-repo/lorcana-app.git
+cd lorcana-app
+```
 
-## Fonctionnalités de l'Application
+### 2. Installer les dépendances
+```sh
+yarn install  # ou npm install
+```
 
-L'application inclut les fonctionnalités suivantes :
-1. **Authentification** :
-   - Inscription
-   - Connexion
-   - Déconnexion
+### 3. Lancer l'application
+```sh
+npx expo start
+```
+Ouvrir l'application avec **Expo Go** sur un appareil physique ou un émulateur.
 
-2. **Gestion des Cartes** :
-   - Afficher les cartes d'un chapitre
-   - Filtrer et rechercher les cartes
-   - Ajouter des cartes à la collection
+## 🤖 Contexte et gestion de l'état
+L'application utilise **Context API** pour gérer l'état global. Voici les principaux contextes :
 
-3. **Gestion des Chapitres** :
-   - Afficher la liste des chapitres
+- **AuthContext.js** : Stocke les informations d'utilisateur et l'état de connexion.
+- **CollectionContext.js** : Gère la collection de cartes.
+- **WishlistContext.js** : Gère les cartes ajoutées à la wishlist.
 
-4. **Wishlist** :
-   - Ajouter ou retirer des cartes de la wishlist
+## ⚖️ Problèmes courants et solutions
+### ⚠️ "This screen doesn't exist."
+- Assurez-vous que **index.jsx** est bien placé dans **app/**.
+- Vérifiez les erreurs de nommage des fichiers.
 
-## Démarrage du Projet
+### ⚠️ "Element type is invalid..."
+- Vérifiez que tous les composants sont bien exportés et importés.
+- Erreur courante :
+  ```js
+  import CollectionProvider from './context/CollectionContext'; // ❌ Erreur
+  import { CollectionProvider } from './context/CollectionContext'; // ✅ Correct
+  ```
 
-Pour démarrer l'application, exécutez les commandes suivantes :
+### ⚠️ "Identifier has already been declared"
+- Assurez-vous que chaque fichier de contexte **n'exporte pas plusieurs fois** la même variable.
 
-1. Naviguez vers le répertoire du projet :
-   ```bash
-   cd Lorcana
-   ```
+## 💪 Contribution
+Les contributions sont les bienvenues ! Forkez le projet et proposez vos améliorations.
 
-2. Démarrez le serveur de développement :
-   ```bash
-   npm start
-   ```
+## 🏁 Conclusion
+Lorcana Mobile Expo vise à offrir une expérience simple et efficace pour gérer sa collection Lorcana. N'hésitez pas à proposer des améliorations et à signaler des bugs.
 
-Cela lancera l'environnement de développement Expo.
+---
+
+✨ **Bon codage et amuse-toi avec Lorcana !** 🚀
+
+
+
+Documentation faite par moi amelioration faite par chat gpt mdr--
