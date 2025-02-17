@@ -1,9 +1,43 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const WishlistContext = createContext();
 
 export function WishlistProvider({ children }) {
   const [wishlist, setWishlist] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchWishlist = async (token) => {
+    try {
+      const response = await fetch('https://lorcana.brybry.fr/api/wishlist', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la récupération de la wishlist');
+      }
+
+      const data = await response.json();
+      setWishlist(data);
+      setLoading(false);
+      return data;
+    } catch (error) {
+      console.error('Erreur:', error);
+      setLoading(false);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchWishlist(token);
+    }
+  }, []);
+
 
   const addToWishlist = async (token, cardId) => {
     try {
@@ -59,7 +93,8 @@ export function WishlistProvider({ children }) {
 
 
   return (
-    <WishlistContext.Provider value={{ wishlist, addToWishlist, removeFromWishlist }}>
+    <WishlistContext.Provider value={{ wishlist, loading, fetchWishlist, addToWishlist, removeFromWishlist }}>
+
       {children}
     </WishlistContext.Provider>
   );

@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { View, Text, FlatList, ActivityIndicator, StyleSheet } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 
-export default function ChapterDetail() {
+export default function ChapterCards() {
   const { id } = useLocalSearchParams();
-  const router = useRouter();
-  const [chapter, setChapter] = useState(null);
+  const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchChapter = async () => {
+    const fetchCards = async () => {
       try {
-        const response = await fetch(`https://lorcana.brybry.fr/api/sets/${id}`, {
+        const response = await fetch(`https://lorcana.brybry.fr/api/sets/${id}/cards`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -20,11 +19,11 @@ export default function ChapterDetail() {
         });
 
         if (!response.ok) {
-          throw new Error('Erreur lors de la récupération du chapitre');
+          throw new Error('Erreur lors de la récupération des cartes');
         }
 
         const data = await response.json();
-        setChapter(data);
+        setCards(data);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -32,8 +31,17 @@ export default function ChapterDetail() {
       }
     };
 
-    fetchChapter();
+    fetchCards();
   }, [id]);
+
+  const renderCardItem = ({ item }) => (
+    <View style={styles.cardItem}>
+      <Text style={styles.cardName}>{item.name}</Text>
+      <Text style={styles.cardDetails}>Version: {item.version}</Text>
+      <Text style={styles.cardDetails}>Numéro: {item.number}</Text>
+      <Text style={styles.cardDetails}>Rareté: {item.rarity}</Text>
+    </View>
+  );
 
   if (loading) {
     return (
@@ -53,19 +61,13 @@ export default function ChapterDetail() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{chapter.name}</Text>
-      <View style={styles.detailsContainer}>
-        <Text style={styles.detailText}>Code: {chapter.code}</Text>
-        <Text style={styles.detailText}>Date de sortie: {chapter.release_date}</Text>
-        <Text style={styles.detailText}>Nombre de cartes: {chapter.card_number}</Text>
-        
-        <TouchableOpacity 
-          style={styles.cardsButton}
-          onPress={() => router.push(`/(tabs)/chapters/${id}/cards`)}
-        >
-          <Text style={styles.cardsButtonText}>Voir les cartes</Text>
-        </TouchableOpacity>
-      </View>
+      <Text style={styles.title}>Cartes du Chapitre</Text>
+      <FlatList
+        data={cards}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderCardItem}
+        contentContainerStyle={styles.listContent}
+      />
     </View>
   );
 }
@@ -83,32 +85,29 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
   },
-  detailsContainer: {
+  listContent: {
+    paddingBottom: 20,
+  },
+  cardItem: {
     backgroundColor: '#fff',
-    padding: 20,
+    padding: 15,
     borderRadius: 8,
+    marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  detailText: {
-    fontSize: 16,
-    color: '#444',
-    marginBottom: 10,
-  },
-  cardsButton: {
-    backgroundColor: '#800080',
-    padding: 15,
-    borderRadius: 8,
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  cardsButtonText: {
-    color: '#fff',
-    fontSize: 16,
+  cardName: {
+    fontSize: 18,
     fontWeight: 'bold',
+    color: '#444',
+  },
+  cardDetails: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 5,
   },
   errorText: {
     color: '#ff4444',
