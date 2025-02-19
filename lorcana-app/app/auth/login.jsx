@@ -1,9 +1,8 @@
-import { useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { AuthContext } from "../context/AuthContext";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
-
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -12,13 +11,11 @@ export default function Login() {
   const { login } = useContext(AuthContext);
   const router = useRouter();
 
-
   const handleLogin = async () => {
     setErrorMessage("");
     try {
       await login(email, password);
-      router.replace("/(tabs)/acceuil");
-
+      router.replace("/(tabs)/acceuil"); // Redirection après connexion réussie
     } catch (error) {
       console.error('Login error:', error);
       setErrorMessage('Erreur lors de la connexion. Veuillez vérifier vos identifiants.');

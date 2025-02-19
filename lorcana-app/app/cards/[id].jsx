@@ -3,7 +3,9 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { useCollection } from "../context/CollectionContext";
 import { useWishlist } from "../context/WishlistContext";
+import { useAuth } from "../context/AuthContext";
 import { LinearGradient } from 'expo-linear-gradient';
+
 
 export default function CardDetails() {
   const { id } = useLocalSearchParams();
@@ -17,9 +19,12 @@ export default function CardDetails() {
   useEffect(() => {
     if (!id) return;
 
+    const { authFetch } = useAuth();
+
     const fetchCardDetails = async () => {
       try {
-        const response = await fetch(`https://lorcana.brybry.fr/api/sets/cards/${id}`);
+        const response = await authFetch(`https://lorcana.brybry.fr/api/sets/cards/${id}`);
+
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

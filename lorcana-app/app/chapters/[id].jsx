@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
+
 export default function ChapterDetail() {
   const { id } = useLocalSearchParams();
   const router = useRouter();

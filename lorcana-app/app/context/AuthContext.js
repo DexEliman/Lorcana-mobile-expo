@@ -4,6 +4,21 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 // Création du contexte
 const AuthContext = createContext(null);
 
+// Helper function for authenticated fetch
+const authFetch = async (url, options = {}) => {
+  const token = await AsyncStorage.getItem('userToken');
+  if (!token) throw new Error('No authentication token found');
+  
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+};
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -13,53 +28,39 @@ export const useAuth = () => {
 };
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser ] = useState(null);
+  const [token, setToken] = useState(null);
+  const [error, setError] = useState(null); // Ajout d'un état d'erreur
 
   useEffect(() => {
-    const loadUser = async () => {
-      const storedUser = await AsyncStorage.getItem("user");
-      if (storedUser) setUser(JSON.parse(storedUser));
+    const loadUser  = async () => {
+      const storedUser  = await AsyncStorage.getItem("user");
+      if (storedUser ) setUser (JSON.parse(storedUser ));
     };
-    loadUser();
+    loadUser ();
   }, []);
 
   const login = async (email, password) => {
-    const response = await fetch("https://lorcana.brybry.fr/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      await AsyncStorage.setItem("user", JSON.stringify(data));
-      setUser(data);
-    }
-    if (!response.ok) {
-      throw new Error('Erreur lors de la connexion');
-    }
-  };
-
-  const fetchUserInfo = async (token) => {
     try {
-      const response = await fetch('https://lorcana.brybry.fr/api/me', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+      const response = await fetch("https://lorcana.brybry.fr/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la récupération des informations');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de la connexion');
       }
 
       const data = await response.json();
-      console.log('Informations utilisateur:', data);
-      return data;
+      await AsyncStorage.setItem("user", JSON.stringify(data));
+      await AsyncStorage.setItem("userToken", data.token);
+      setUser (data);
+      setToken(data.token);
     } catch (error) {
-      console.error('Erreur:', error);
-      throw error;
+      setError(error.message);
+      console.error('Login error:', error);
     }
   };
 
@@ -79,7 +80,9 @@ export function AuthProvider({ children }) {
         }
 
         await AsyncStorage.removeItem('userToken');
-        setUser(null);
+        await AsyncStorage.removeItem('user');
+        setUser (null);
+        setToken(null);
         console.log('Déconnexion réussie');
       }
     } catch (error) {
@@ -88,11 +91,11 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, authFetch, error }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export { AuthContext};
+export { AuthContext };
 export default AuthProvider;

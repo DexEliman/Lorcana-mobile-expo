@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, ActivityIndicator, StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 
+
 export default function ChapterCards() {
   const { id } = useLocalSearchParams();
   const [cards, setCards] = useState([]);

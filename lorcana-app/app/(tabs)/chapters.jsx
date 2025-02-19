@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Chapters() {
   const router = useRouter();
@@ -13,46 +14,53 @@ export default function Chapters() {
     setError(null);
     
     try {
+      const token = await AsyncStorage.getItem('userToken');
+      console.log('Token récupéré:', token); // Log du token récupéré
+
+      if (!token) {
+        throw new Error('Aucun token trouvé');
+      }
+
       let response = await fetch('https://lorcana.brybry.fr/api/sets', {
         method: 'GET',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
 
-      // If first attempt fails, try once more
-      if (!response.ok) {
-        response = await fetch('https://lorcana.brybry.fr/api/sets', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-      }
+      console.log('Réponse de l\'API:', response); // Log de la réponse de l'API
 
       if (!response.ok) {
-        throw new Error('Impossible de charger les chapitres. Veuillez réessayer plus tard.');
+        const errorData = await response.json();
+        console.error('Erreur lors de la récupération des données:', errorData); // Log de l'erreur
+        throw new Error('Erreur lors de la récupération des données utilisateur');
       }
 
       const data = await response.json();
+      console.log('Données récupérées:', data); // Log des données récupérées
       setSets(data);
     } catch (error) {
       console.error('Fetch error:', error);
       setError(error.message || 'Une erreur est survenue');
     } finally {
       setLoading(false);
+      console.log('Chargement terminé'); // Log de fin de chargement
     }
   };
 
-
   useEffect(() => {
+    console.log('Composant monté, appel de fetchSets'); // Log lors du montage du composant
     fetchSets();
   }, []);
 
   const renderSetItem = ({ item }) => (
     <TouchableOpacity 
       style={styles.setItem} 
-      onPress={() => router.push(`/(tabs)/chapters/${item.id}`)}
+      onPress={() => {
+        console.log('Set sélectionné:', item); // Log de l'élément sélectionné
+        router.push(`/(tabs)/chapters/${item.id}`);
+      }}
     >
       <Text style={styles.setName}>{item.name}</Text>
       <Text style={styles.setCode}>Code: {item.code}</Text>
